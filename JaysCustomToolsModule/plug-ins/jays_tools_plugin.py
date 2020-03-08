@@ -34,6 +34,7 @@ def unload_menu_item():
         
 
 def load_menu_item():
+    import conLibrary.library_ui as clt
     
     unload_menu_item()
 
@@ -74,6 +75,7 @@ def uninitializePlugin(plugin):
 
     :param plugin: MObject used to de-register the plugin using an MFnPlugin function set
     """
+    om.MFnPlugin(plugin)
     unload_menu_item()
 
 
