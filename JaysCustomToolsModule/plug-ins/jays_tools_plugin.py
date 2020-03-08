@@ -4,7 +4,7 @@ import maya.cmds as cmds
 import pymel.core as pm
 
 # Tools Imports
-import conLibrary.library_ui as clt
+import library_ui as clt
 import colour_overrides_tool as cot
 import retime_tool as rtt
 

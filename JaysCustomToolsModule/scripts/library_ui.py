@@ -1,8 +1,7 @@
 from maya import cmds
 import pprint
 
-from conLibrary import controller_library
-reload(controller_library)
+import controller_library
 
 from PySide2 import QtWidgets, QtCore, QtGui
 from shiboken2 import wrapInstance
