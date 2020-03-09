@@ -26,17 +26,41 @@ class AutoFootRollUI(JDialogUI):
         # This is the master layout
         layout = QtWidgets.QVBoxLayout(self)
         
-        # This is the child Horizontal widget for the Save functionality
+        
+        ikTitle = QtWidgets.QLabel(text="1. Start by selecting IK Handle at ankle")
+        ikTitle.setStyleSheet("color: black;background-color: grey;")
+        ikTitle.setMargin(6)
+        ikTitle.setFixedHeight(25)
+        layout.addWidget(ikTitle)
+        
+        self.ikError = QtWidgets.QLabel(text="")
+        self.ikError.setStyleSheet("color: white;background-color: red;")
+        self.ikError.setMargin(6)
+        self.ikError.setFixedHeight(25)
+        self.ikError.hide()
+        layout.addWidget(self.ikError)
+        
         ikWidget = QtWidgets.QWidget()
         ikLayout = QtWidgets.QHBoxLayout(ikWidget)
+        ikWidget.setMaximumHeight(40)
         layout.addWidget(ikWidget)
-        
+
         self.ikNameField = QtWidgets.QLabel(text=self.footRoll.get_ik_display_name())
+        self.ikNameField.setStyleSheet("color: grey;background-color: black;")
+        self.ikNameField.setMargin(8)
+        self.ikNameField.setFixedHeight(26)
         ikLayout.addWidget(self.ikNameField)
         
         ikBtn = QtWidgets.QPushButton("Select IK Handle")
         ikBtn.clicked.connect(self.run_assign_ik)
+        ikBtn.setFixedHeight(26)
         ikLayout.addWidget(ikBtn)
+        
+        jointsTitle = QtWidgets.QLabel(text="2. Next, select all three foot joints")
+        jointsTitle.setStyleSheet("color: black;background-color: grey;")
+        jointsTitle.setMargin(6)
+        jointsTitle.setFixedHeight(25)
+        layout.addWidget(jointsTitle)
 
         # This is the child widget that holds all our action buttons
         btnsWidget = QtWidgets.QWidget()
@@ -57,8 +81,14 @@ class AutoFootRollUI(JDialogUI):
     
     def run_assign_ik(self):
         ik_name, message = self.footRoll.assign_ik()
-        print ik_name
         print message
+        if message.strip():
+            self.ikError.setText(message)
+            self.ikError.show()
+        else:
+            self.ikError.setText(" ")
+            self.ikError.hide()
+
         self.ikNameField.setText(ik_name)
         
     def run_auto_foot_roll(self):

@@ -25,7 +25,7 @@ class FootRoll(object):
         self.GRND_HGT_OFFSET = grnd_hgt_offset
     
     def assign_ik(self):
-        message = " "
+        message = None
         sel = cmds.ls(type="ikHandle", selection=True) or []
         if not sel:
             message = "You must select one ikHandle."
