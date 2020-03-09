@@ -108,7 +108,7 @@ class ControllerLibraryUI(JDialogUI):
         self.saveNameField.setText("")
 
 
-ctrl_lib_ui = None
+
         
 def show_ui(*args):
     """
@@ -117,25 +117,20 @@ def show_ui(*args):
     Returns:
         QDialog
     """
-    global ctrl_lib_ui
+
+    # global ctrl_lib_ui
+    # try:
+    #     ctrl_lib_ui.close()
+    #     ctrl_lib_ui.deleteLater()
+    # except:
+    #     pass
     
-    try:
-        ctrl_lib_ui.close()
-        ctrl_lib_ui.deleteLater()
-    except:
-        pass
+    # ctrl_lib_ui = ControllerLibraryUI()
+    # ctrl_lib_ui.show(dockable=True)
     
-    ctrl_lib_ui = ControllerLibraryUI()
-    ctrl_lib_ui.show()
-    return ctrl_lib_ui
+    ControllerLibraryUI.display()
+
     
     
 if __name__ == "__main__":
-    try:
-        ctrl_lib_ui.close()
-        ctrl_lib_ui.deleteLater()
-    except:
-        pass
-        
-    ctrl_lib_ui = ControllerLibraryUI()
-    ctrl_lib_ui.show()
+    show_ui()

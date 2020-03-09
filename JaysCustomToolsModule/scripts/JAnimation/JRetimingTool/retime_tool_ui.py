@@ -8,7 +8,7 @@ from shiboken2 import wrapInstance
 
 # MY Python Modules
 from JGeneral.JQTDialog import JDialogUI
-from JAnimation.RetimingTool.retime_tool import BourneRetimingUtils
+from JAnimation.JRetimingTool.retime_tool import BourneRetimingUtils
 
 
 class BourneRetimingUtilsUI(JDialogUI):
@@ -97,19 +97,19 @@ def show_ui(*args):
     Returns:
         QDialog
     """
-    global retiming_ui
+    # global retiming_ui
     
-    try:
-        retiming_ui.close()
-        retiming_ui.deleteLater()
-    except:
-        pass
+    # try:
+    #     retiming_ui.close()
+    #     retiming_ui.deleteLater()
+    # except:
+    #     pass
         
-    retiming_ui = BourneRetimingUtilsUI()
-    retiming_ui.show()
-    return retiming_ui
+    # retiming_ui = BourneRetimingUtilsUI()
+    # retiming_ui.show()
+    # return retiming_ui
 
-
+    BourneRetimingUtilsUI.display()
 
 if __name__ == "__main__":
     

@@ -1,10 +1,11 @@
 from maya import cmds
+from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 from PySide2 import QtWidgets, QtCore
 from shiboken2 import wrapInstance
 import maya.OpenMayaUI as omui
 
-class JDialogUI(QtWidgets.QDialog):
+class JDialogUI(MayaQWidgetDockableMixin, QtWidgets.QDialog):
     """ The ControllerLibraryUI is a dialog that lets us save and import controllers """
     
     WINDOW_TITLE = "JDialog UI"
@@ -17,10 +18,10 @@ class JDialogUI(QtWidgets.QDialog):
             cls.dlg_instance = cls()
             
         if cls.dlg_instance.isHidden():
-            cls.dlg_instance.show()
+            cls.dlg_instance.show(dockable=True)
         else:
             cls.dlg_instance.raise_()
-            cls.dlg_instance.activeWindow()
+            #cls.dlg_instance.activeWindow()
     
     @classmethod
     def maya_main_window(cls):

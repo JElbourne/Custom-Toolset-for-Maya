@@ -9,7 +9,7 @@ from JRigging.JAutoFootRoll import auto_foot_roll_ui
 
 from JAnimation.JRetimingTool import retime_tool_ui
 
-import colour_overrides_tool as cot
+from JGeneral import colour_overrides_tool as cot
 
 
 MENU_OBJ = "JaysToolsMenu"

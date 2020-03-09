@@ -4,7 +4,6 @@ from PySide2 import QtWidgets, QtCore, QtGui
 
 from JGeneral.JQTDialog import JDialogUI
 from JRigging.JAutoFootRoll import auto_foot_roll
-reload(auto_foot_roll)
 
 
 class AutoFootRollUI(JDialogUI):
@@ -68,21 +67,20 @@ class AutoFootRollUI(JDialogUI):
 
 
 def show_ui(*args):
-    """
-    This shows and returns a handle to the UI
+    """ This shows and returns a handle to the UI """
+    #global auto_foot_roll_ui
+    # try:
+    #     auto_foot_roll_ui.close()
+    #     auto_foot_roll_ui.deleteLater()
+    # except:
+    #     pass
     
-    Returns:
-        QDialog
-    """
+    # auto_foot_roll_ui = AutoFootRollUI()
+    # auto_foot_roll_ui.show(dockable=True)
+    # auto_foot_roll_ui.activateWindow
+    
+    AutoFootRollUI.display()
 
-    try:
-        auto_foot_roll_ui.close()
-        auto_foot_roll_ui.deleteLater()
-    except:
-        pass
-    
-    auto_foot_roll_ui = AutoFootRollUI()
-    auto_foot_roll_ui.display()
     
     
 if __name__ == "__main__":
