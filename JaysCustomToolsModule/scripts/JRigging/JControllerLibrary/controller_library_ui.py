@@ -1,48 +1,18 @@
 from maya import cmds
 import pprint
 
-import controller_library
-
 from PySide2 import QtWidgets, QtCore, QtGui
-from shiboken2 import wrapInstance
-import maya.OpenMayaUI as omui
 
-class ControllerLibraryUI(QtWidgets.QDialog):
+from JGeneral.JQTDialog import JDialogUI
+from JRigging.JControllerLibrary import controller_library
+
+class ControllerLibraryUI(JDialogUI):
     """ The ControllerLibraryUI is a dialog that lets us save and import controllers """
     
-    WINDOW_TITLE = "Controller Library UI"
-    
-    dlg_instance = None
-    
-    @classmethod
-    def display(cls):
-        if not cls.dlg_instance:
-            cls.dlg_instance = ControllerLibraryUI()
-            
-        if cls.dlg_instance.isHidden():
-            cls.dlg_instance.show()
-        else:
-            cls.dlg_instance.raise_()
-            cls.dlg_instance.activeWindow()
-    
-    @classmethod
-    def maya_main_window(cls):
-        """
-        Return the Maya main window widget as a Python object
-        """
-        main_window_ptr = omui.MQtUtil.mainWindow()
-        return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)
-    
-    
     def __init__(self):
-        super(ControllerLibraryUI, self).__init__(self.maya_main_window())
+        self.WINDOW_TITLE = "Controller Library UI"
+        super(ControllerLibraryUI, self).__init__()
                 
-        self.setWindowTitle(self.WINDOW_TITLE)
-        if cmds.about(ntOS=True):
-            self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        elif cmds.about(macOS=True):
-            self.setWindowFlags(QtCore.Qt.Tool)
-        
         # The library variable points to an instance of our controller library
         self.library = controller_library.ControllerLibrary()
         
@@ -140,7 +110,7 @@ class ControllerLibraryUI(QtWidgets.QDialog):
 
 ctrl_lib_ui = None
         
-def show_ui():
+def show_ui(*args):
     """
     This shows and returns a handle to the UI
     
@@ -161,8 +131,6 @@ def show_ui():
     
     
 if __name__ == "__main__":
-    
-    
     try:
         ctrl_lib_ui.close()
         ctrl_lib_ui.deleteLater()

@@ -4,9 +4,13 @@ import maya.cmds as cmds
 import pymel.core as pm
 
 # Tools Imports
-import library_ui as clt
+from JRigging.JControllerLibrary import controller_library_ui
+from JRigging.JAutoFootRoll import auto_foot_roll_ui
+
+from JAnimation.JRetimingTool import retime_tool_ui
+
 import colour_overrides_tool as cot
-import retime_tool as rtt
+
 
 MENU_OBJ = "JaysToolsMenu"
 MENU_LABEL = "Jays Custom Tools"
@@ -22,33 +26,30 @@ def maya_useNewAPI():
     expects to be passed, objects created using the Maya Python API 2.0.
     """
     pass
+ 
         
-  
-def colour_override_show():
-    cot.DisplayColourOverrideUI.display()
-    
-
 def unload_menu_item():
     if pm.menu(MENU_OBJ, label=MENU_LABEL, exists=True, parent=MAIN_WINDOW):
         pm.deleteUI(pm.menu(MENU_OBJ, e=True, deleteAllItems=True))
         
 
 def load_menu_item():
-    import conLibrary.library_ui as clt
-    
     unload_menu_item()
 
     custom_tools_menu = pm.menu(MENU_OBJ, label=MENU_LABEL, parent=MAIN_WINDOW, tearOff=True)
 
+    pm.menuItem(label="The Magic Button", command="print 'See that was easy just like the client said. Just had to push the button that does it all for you.'")
+    pm.menuItem(divider=True,)
     pm.menuItem(label="Rigging", divider=True,)
-    pm.menuItem(label="Auto Foot Roll Tool", command="print 'Auto Foot Rig'")
-    pm.menuItem(label="Controllers Library", command="clt.show_ui()")
+    pm.menuItem(label="Auto Foot Roll Tool", command=auto_foot_roll_ui.show_ui)
+    pm.menuItem(label="Controllers Library", command=controller_library_ui.show_ui)
 
     pm.menuItem(label="Animation", divider=True )
-    pm.menuItem(label="Retiming Tool", command="rtt.show_ui()")
+    pm.menuItem(label="Retiming Tool", command=retime_tool_ui.show_ui)
     
     pm.menuItem( label="Utilities", divider=True )
-    pm.menuItem(label="Colour Override", command="colour_override_show()")
+    pm.menuItem(label="Colour Override", command=cot.DisplayColourOverrideUI.display)
+    pm.menuItem(label="Quick Gear", command=cot.DisplayColourOverrideUI.display)
         
 
 def initializePlugin(plugin):

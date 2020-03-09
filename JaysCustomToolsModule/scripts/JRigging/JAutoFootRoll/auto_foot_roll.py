@@ -25,13 +25,27 @@ class FootRoll(object):
         self.GRND_HGT_OFFSET = grnd_hgt_offset
     
     def assign_ik(self):
+        message = " "
         sel = cmds.ls(type="ikHandle", selection=True) or []
         if not sel:
-            om.MGlobal.displayError("You must select one ikHandle.")
+            message = "You must select one ikHandle."
+            om.MGlobal.displayError(message)
         elif len(sel) > 1:
-            om.MGlobal.displayError("Too many selections. Select only one ikHandle.")
+            message = "Too many selections. Select only one ikHandle."
+            om.MGlobal.displayError(message)
         else:
             self.ik_handle = sel[0]
+        
+        return (self.get_ik_display_name(), message)
+    
+    def get_ik_display_name(self):
+        """
+        A function to get the display name, for UI purposes, of the IK Handle being used in the foot roll.
+        
+        Returns (str):
+            Name of IK handle that is set or a default string.
+        """
+        return self.ik_handle if self.ik_handle else "no ik selected"
     
     def assign_joints(self):
         sel = cmds.ls(type="joint", selection=True) or []
@@ -53,24 +67,3 @@ class FootRoll(object):
         cmds.setAttr("{0}.translate".format(ctrl[0]), xCoord, self.GRND_HGT_OFFSET, zCoord)
         cmds.setAttr("{0}.scale".format(ctrl[0]), scale, scale, scale)
         
-    def show(self):
-        print("Showing the Foot Roll WIndow")
-
-
-
-if __name__ == "__main__":
-    main_window = pm.language.melGlobals['gMainWindow']
-
-    menu_obj = "JaysToolsMenu"
-    menu_label = "Jays Custom Tools"
-
-    if pm.menu(menu_obj, label=menu_label, exists=True, parent=main_window):
-        pm.deleteUI(pm.menu(menu_obj, e=True, deleteAllItems=True))
-
-    custom_tools_menu = pm.menu(menu_obj, label=menu_label, parent=main_window, tearOff=True)
-
-    pm.menuItem(label="Rigging", subMenu=True, parent=custom_tools_menu, tearOff=True)
-    pm.menuItem(label="Auto Foot Roll Tool", command="FootRoll().show()")
-    pm.setParent('..', menu=True)
-
-    pm.menuItem(label="Test", command="print 'This is a test'")

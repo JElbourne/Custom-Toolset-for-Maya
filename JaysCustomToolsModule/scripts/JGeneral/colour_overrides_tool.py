@@ -57,7 +57,7 @@ class DisplayColourOverrideUI(object):
     colour_palette = None
     
     @classmethod
-    def display(cls):
+    def display(cls, *args):
         cls.delete()
         
         main_window = cmds.window(cls.WINDOW_NAME,
