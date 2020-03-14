@@ -6,6 +6,7 @@ import pymel.core as pm
 # Tools Imports
 from JRigging.JControllerLibrary import controller_library_ui
 from JRigging.JAutoFootRoll import auto_foot_roll_ui
+from JRigging.JRiggingToolkit import rigging_toolkit_ui
 
 from JAnimation.JRetimingTool import retime_tool_ui
 
@@ -43,6 +44,7 @@ def load_menu_item():
     pm.menuItem(label="Rigging", divider=True,)
     pm.menuItem(label="Auto Foot Roll Tool", command=auto_foot_roll_ui.show_ui)
     pm.menuItem(label="Controllers Library", command=controller_library_ui.show_ui)
+    pm.menuItem(label="Rigging Toolkit", command=rigging_toolkit_ui.show_ui)
 
     pm.menuItem(label="Animation", divider=True )
     pm.menuItem(label="Retiming Tool", command=retime_tool_ui.show_ui)
