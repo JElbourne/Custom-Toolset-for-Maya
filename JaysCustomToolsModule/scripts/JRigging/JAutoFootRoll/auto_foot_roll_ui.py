@@ -27,12 +27,11 @@ class AutoFootRollUI(JDialogUI):
         # This is the master layout
         layout = QtWidgets.QVBoxLayout(self)
         
-        
-        ikTitle = QtWidgets.QLabel(text="1. Start by selecting IK Handle at ankle")
-        ikTitle.setStyleSheet("color: black;background-color: grey;")
-        ikTitle.setMargin(6)
-        ikTitle.setFixedHeight(25)
-        layout.addWidget(ikTitle)
+        instructions = QtWidgets.QLabel(text="1. Start by selecting IK Handle at ankle")
+        instructions.setStyleSheet("color: black;background-color: grey;")
+        instructions.setMargin(6)
+        instructions.setFixedHeight(25)
+        layout.addWidget(instructions)
         
         jntsTitle = QtWidgets.QLabel(text="2. Next, select select the ankle joint")
         jntsTitle.setStyleSheet("color: black;background-color: grey;")
@@ -47,22 +46,39 @@ class AutoFootRollUI(JDialogUI):
         self.selError.hide()
         layout.addWidget(self.selError)
         
-        ikWidget = QtWidgets.QWidget()
-        ikLayout = QtWidgets.QHBoxLayout(ikWidget)
-        ikWidget.setMaximumHeight(36)
-        layout.addWidget(ikWidget)
+        legWidget = QtWidgets.QWidget()
+        legLayout = QtWidgets.QHBoxLayout(legWidget)
+        legWidget.setMaximumHeight(36)
+        layout.addWidget(legWidget)
 
-        ikLabelField = QtWidgets.QLabel(text="IK Handle: ")
-        ikLabelField.setStyleSheet("color: white;background-color: none;")
-        ikLabelField.setMargin(4)
-        ikLabelField.setFixedHeight(26)
-        ikLayout.addWidget(ikLabelField)
+        legLabelField = QtWidgets.QLabel(text="Leg Joint: ")
+        legLabelField.setStyleSheet("color: white;background-color: none;")
+        legLabelField.setMargin(4)
+        legLabelField.setFixedHeight(26)
+        legLayout.addWidget(legLabelField)
         
-        self.ikNameField = QtWidgets.QLabel(text=self.footRoll.get_ik_display_name())
-        self.ikNameField.setStyleSheet("color: white;background-color: #999999;")
-        self.ikNameField.setMargin(4)
-        self.ikNameField.setFixedHeight(26)
-        ikLayout.addWidget(self.ikNameField)
+        self.legNameField = QtWidgets.QLabel(text=self.footRoll.get_leg_display_name())
+        self.legNameField.setStyleSheet("color: white;background-color: #999999;")
+        self.legNameField.setMargin(4)
+        self.legNameField.setFixedHeight(26)
+        legLayout.addWidget(self.legNameField)
+        
+        kneeWidget = QtWidgets.QWidget()
+        kneeLayout = QtWidgets.QHBoxLayout(kneeWidget)
+        kneeWidget.setMaximumHeight(36)
+        layout.addWidget(kneeWidget)
+
+        kneeLabelField = QtWidgets.QLabel(text="Knee Joint: ")
+        kneeLabelField.setStyleSheet("color: white;background-color: none;")
+        kneeLabelField.setMargin(4)
+        kneeLabelField.setFixedHeight(26)
+        kneeLayout.addWidget(kneeLabelField)
+        
+        self.kneeNameField = QtWidgets.QLabel(text=self.footRoll.get_knee_display_name())
+        self.kneeNameField.setStyleSheet("color: white;background-color: #999999;")
+        self.kneeNameField.setMargin(4)
+        self.kneeNameField.setFixedHeight(26)
+        kneeLayout.addWidget(self.kneeNameField)
         
         
         ankleWidget = QtWidgets.QWidget()
@@ -121,12 +137,12 @@ class AutoFootRollUI(JDialogUI):
         layout.addWidget(selbtnsWidget)
         
                                 
-        ikBtn = QtWidgets.QPushButton("Select IK Handle")
-        ikBtn.clicked.connect(self.run_assign_ik)
-        ikBtn.setFixedHeight(26)
-        selbtnsLayout.addWidget(ikBtn)
+        clearBtn = QtWidgets.QPushButton("Clear")
+        clearBtn.clicked.connect(self.run_clear_joints)
+        clearBtn.setFixedHeight(26)
+        selbtnsLayout.addWidget(clearBtn)
         
-        jntsBtn = QtWidgets.QPushButton("Select Ankle Joint")
+        jntsBtn = QtWidgets.QPushButton("Select Upper Leg Joint")
         jntsBtn.clicked.connect(self.run_assign_joints)
         jntsBtn.setFixedHeight(26)
         selbtnsLayout.addWidget(jntsBtn)
@@ -148,16 +164,22 @@ class AutoFootRollUI(JDialogUI):
         closeBtn.clicked.connect(self.close)
         btnsLayout.addWidget(closeBtn)
     
-    def run_assign_ik(self):
-        ik_name, message = self.footRoll.assign_ik()
+    def run_clear_joints(self):
+        leg_name, knee_name, ankle_name, ball_name, toe_name, message = self.footRoll.clear_joints()
         self.set_message(message)
 
-        self.ikNameField.setText(ik_name)
+        self.legNameField.setText(leg_name)
+        self.kneeNameField.setText(knee_name)
+        self.ankleNameField.setText(ankle_name)
+        self.footballNameField.setText(ball_name)
+        self.footToeNameField.setText(toe_name)
     
     def run_assign_joints(self):
-        ankle_name, ball_name, toe_name, message = self.footRoll.assign_joints()
+        leg_name, knee_name, ankle_name, ball_name, toe_name, message = self.footRoll.assign_joints()
         self.set_message(message)
 
+        self.legNameField.setText(leg_name)
+        self.kneeNameField.setText(knee_name)
         self.ankleNameField.setText(ankle_name)
         self.footballNameField.setText(ball_name)
         self.footToeNameField.setText(toe_name)
