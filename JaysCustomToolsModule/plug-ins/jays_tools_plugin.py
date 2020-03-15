@@ -11,10 +11,10 @@ from JRigging.JRiggingToolkit import rigging_toolkit_ui
 from JAnimation.JRetimingTool import retime_tool_ui
 
 from JGeneral import colour_overrides_tool as cot
-
+from JGeneral import gear_creator_script as gcs
 
 MENU_OBJ = "JaysToolsMenu"
-MENU_LABEL = "Jays Custom Tools"
+MENU_LABEL = "Jays Custom Tools" 
 
 MAIN_WINDOW = pm.language.melGlobals['gMainWindow']
 
@@ -39,8 +39,9 @@ def load_menu_item():
 
     custom_tools_menu = pm.menu(MENU_OBJ, label=MENU_LABEL, parent=MAIN_WINDOW, tearOff=True)
 
-    pm.menuItem(label="The Magic Button", command="print 'See that was easy just like the client said. Just had to push the button that does it all for you.'")
-    pm.menuItem(divider=True,)
+    
+    pm.menuItem(label="The Magic Button", command="print 'See that was easy just like the client said. Just had to push the button that does it all for you.'")   
+
     pm.menuItem(label="Rigging", divider=True,)
     pm.menuItem(label="Auto Foot Roll Tool", command=auto_foot_roll_ui.show_ui)
     pm.menuItem(label="Controllers Library", command=controller_library_ui.show_ui)
@@ -51,9 +52,8 @@ def load_menu_item():
     
     pm.menuItem( label="Utilities", divider=True )
     pm.menuItem(label="Colour Override", command=cot.DisplayColourOverrideUI.display)
-    pm.menuItem(label="Quick Gear", command=cot.DisplayColourOverrideUI.display)
-        
-
+    pm.menuItem(label="Quick Gear", command=gcs.displayGearUi)
+    
 def initializePlugin(plugin):
     """
     Entry point for a plugin. It is called once -- immediately after the plugin is loaded.
