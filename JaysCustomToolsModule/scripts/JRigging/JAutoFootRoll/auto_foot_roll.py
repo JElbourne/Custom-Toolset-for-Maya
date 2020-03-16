@@ -8,7 +8,7 @@ class FootRoll(object):
     SIDE = "l"
     FC_NAME_OVERRIDE = None
     FOOT_WIDTH = 5
-    ANKLE_OFFSET = 3
+    HEEL_OFFSET = 2
     GRND_HGT_OFFSET = 0
     
     foot_controller = None
@@ -23,11 +23,11 @@ class FootRoll(object):
     foot_toe_bone = None
 
     
-    def __init__(self, side="L", foot_width=5, ankle_offset=3, grnd_hgt_offset=0, fc_name_override=None):
+    def __init__(self, side="L", foot_width=5, heel_offset=2, grnd_hgt_offset=0, fc_name_override=None):
         self.SIDE = side
         self.FC_NAME_OVERRIDE = fc_name_override
         self.FOOT_WIDTH = foot_width
-        self.ANKLE_OFFSET = ankle_offset
+        self.HEEL_OFFSET = heel_offset
         self.GRND_HGT_OFFSET = grnd_hgt_offset
     
     def assign_ik(self):
@@ -143,22 +143,24 @@ class FootRoll(object):
         return self.foot_toe_bone if self.foot_toe_bone else "no toe joint assigned"
         
     def create_foot_controller(self):
-        foot_ctrl_name = self.FC_NAME_OVERRIDE if self.FC_NAME_OVERRIDE else "foot_ctrl"
-        scale = self.FOOT_WIDTH * 1.15
-        
-        xCoord = cmds.getAttr("{0}.translateX".format(self.leg_ik)) if self.leg_ik else 0
-        zCoord = cmds.getAttr("{0}.translateZ".format(self.leg_ik)) if self.leg_ik else 0
+        foot_ctrl_name = self.FC_NAME_OVERRIDE if self.FC_NAME_OVERRIDE else "foot_CTRL"
+        scale = self.FOOT_WIDTH * 0.8
+
+        coords = cmds.xform( self.leg_ik, query=True, translation=True, worldSpace=True )
         ctrl = cmds.circle(name="{0}_{1}".format(foot_ctrl_name, self.SIDE), normal=(0,1,0))
         self.foot_controller = ctrl[0]
         
-        cmds.setAttr("{0}.translate".format(ctrl[0]), xCoord, self.GRND_HGT_OFFSET, zCoord)
+        cmds.setAttr("{0}.translate".format(ctrl[0]), coords[0], self.GRND_HGT_OFFSET, coords[2])
         cmds.setAttr("{0}.scale".format(ctrl[0]), scale, scale, scale)
         cmds.makeIdentity(self.foot_controller, apply=True )
-    
+        cmds.move(coords[0], coords[1], coords[2],
+                    "{0}.scalePivot".format(self.foot_controller),
+                    "{0}.rotatePivot".format(self.foot_controller),
+                    absolute=True)
     
     def create_poleVector(self):
-        pv_name = "{0}_{1}".format("leg_pole_vector", self.SIDE)
-        scale = self.FOOT_WIDTH * 0.5
+        pv_name = "{0}_{1}".format("leg_PV", self.SIDE)
+        scale = self.FOOT_WIDTH * 0.4
         
         coords = cmds.xform( self.knee_bone, query=True, translation=True, worldSpace=True )
         ctrl = cmds.circle(name=pv_name, normal=(0,0,1), degree=1, sections=3)
@@ -184,7 +186,29 @@ class FootRoll(object):
             message = "Missing a required bone."
         
         return message
+    
+    
+    def create_locators(self):
+        ankle_coords = cmds.xform( self.ankle_bone, query=True, translation=True, worldSpace=True )
+        ball_coords = cmds.xform( self.foot_ball_bone, query=True, translation=True, worldSpace=True )
+        toe_coords = cmds.xform( self.foot_toe_bone, query=True, translation=True, worldSpace=True )
+
+        self.toe_loc = cmds.spaceLocator(absolute=True, name="toe_LOC_{0}".format(self.SIDE), position=[toe_coords[0],toe_coords[1],toe_coords[2]])[0]
+        cmds.move(toe_coords[0], toe_coords[1], toe_coords[2], "{0}.scalePivot".format(self.toe_loc), "{0}.rotatePivot".format(self.toe_loc), absolute=True)
         
+        self.ball_loc = cmds.spaceLocator(absolute=True, name="ball_LOC_{0}".format(self.SIDE), position=[ball_coords[0],ball_coords[1],ball_coords[2]])[0]
+        cmds.move(ball_coords[0], ball_coords[1], ball_coords[2], "{0}.scalePivot".format(self.ball_loc), "{0}.rotatePivot".format(self.ball_loc), absolute=True)
+
+        self.heel_loc = cmds.spaceLocator(absolute=True, name="heel_LOC_{0}".format(self.SIDE), position=[ankle_coords[0],0,ankle_coords[2]-self.HEEL_OFFSET])[0]
+        cmds.move(ankle_coords[0], 0, ankle_coords[2]-self.HEEL_OFFSET, "{0}.scalePivot".format(self.heel_loc), "{0}.rotatePivot".format(self.heel_loc), absolute=True)
+
+    def parent_objects(self): 
+        cmds.parent(self.heel_loc, self.foot_controller)
+        cmds.parent(self.toe_loc, self.toe_ik, self.heel_loc)
+        cmds.parent(self.leg_ik, self.ball_ik, self.ball_loc)
+        cmds.parent(self.ball_loc, self.toe_loc)
+
+       
     def create_footroll(self):
         message = self.check_for_all_joints()
         if message:
@@ -194,6 +218,9 @@ class FootRoll(object):
         
         self.create_foot_controller()
         self.create_poleVector()
+        
+        self.create_locators()
+        self.parent_objects()
         
         return message
         

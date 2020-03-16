@@ -200,21 +200,9 @@ class AutoFootRollUI(JDialogUI):
 
 
 def show_ui(*args):
-    """ This shows and returns a handle to the UI """
-    #global auto_foot_roll_ui
-    # try:
-    #     auto_foot_roll_ui.close()
-    #     auto_foot_roll_ui.deleteLater()
-    # except:
-    #     pass
-    
-    # auto_foot_roll_ui = AutoFootRollUI()
-    # auto_foot_roll_ui.show(dockable=True)
-    # auto_foot_roll_ui.activateWindow
-    
+    """ This shows and returns a handle to the UI """   
     AutoFootRollUI.display()
 
-    
     
 if __name__ == "__main__":
     show_ui()
