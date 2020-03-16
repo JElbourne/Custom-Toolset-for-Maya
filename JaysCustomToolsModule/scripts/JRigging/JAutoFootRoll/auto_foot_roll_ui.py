@@ -135,8 +135,7 @@ class AutoFootRollUI(JDialogUI):
         selbtnsWidget = QtWidgets.QWidget()
         selbtnsLayout = QtWidgets.QHBoxLayout(selbtnsWidget)
         layout.addWidget(selbtnsWidget)
-        
-                                
+                                        
         clearBtn = QtWidgets.QPushButton("Clear")
         clearBtn.clicked.connect(self.run_clear_joints)
         clearBtn.setFixedHeight(26)
@@ -203,6 +202,7 @@ def show_ui(*args):
     """ This shows and returns a handle to the UI """   
     AutoFootRollUI.display()
 
+    
     
 if __name__ == "__main__":
     show_ui()

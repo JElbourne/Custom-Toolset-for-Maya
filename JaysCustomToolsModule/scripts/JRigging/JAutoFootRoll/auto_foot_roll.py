@@ -187,28 +187,137 @@ class FootRoll(object):
         
         return message
     
-    
     def create_locators(self):
         ankle_coords = cmds.xform( self.ankle_bone, query=True, translation=True, worldSpace=True )
         ball_coords = cmds.xform( self.foot_ball_bone, query=True, translation=True, worldSpace=True )
         toe_coords = cmds.xform( self.foot_toe_bone, query=True, translation=True, worldSpace=True )
+        
+        innerZ = ((toe_coords[2] - ball_coords[2])/2.75) + ball_coords[2]
+        outerZ = toe_coords[2] - ((toe_coords[2] - ball_coords[2])/2.75)
+        if self.SIDE == "L":
+            innerX = toe_coords[0] - (self.FOOT_WIDTH/2.0)
+            outerX = toe_coords[0] + (self.FOOT_WIDTH/2.0)
+        else:
+            innerX = toe_coords[0] + (self.FOOT_WIDTH/2.0)
+            outerX = toe_coords[0] - (self.FOOT_WIDTH/2.0)
 
         self.toe_loc = cmds.spaceLocator(absolute=True, name="toe_LOC_{0}".format(self.SIDE), position=[toe_coords[0],toe_coords[1],toe_coords[2]])[0]
         cmds.move(toe_coords[0], toe_coords[1], toe_coords[2], "{0}.scalePivot".format(self.toe_loc), "{0}.rotatePivot".format(self.toe_loc), absolute=True)
-        
+        cmds.setAttr("{0}.visibility".format(self.toe_loc), 0)
         self.ball_loc = cmds.spaceLocator(absolute=True, name="ball_LOC_{0}".format(self.SIDE), position=[ball_coords[0],ball_coords[1],ball_coords[2]])[0]
         cmds.move(ball_coords[0], ball_coords[1], ball_coords[2], "{0}.scalePivot".format(self.ball_loc), "{0}.rotatePivot".format(self.ball_loc), absolute=True)
-
-        self.heel_loc = cmds.spaceLocator(absolute=True, name="heel_LOC_{0}".format(self.SIDE), position=[ankle_coords[0],0,ankle_coords[2]-self.HEEL_OFFSET])[0]
-        cmds.move(ankle_coords[0], 0, ankle_coords[2]-self.HEEL_OFFSET, "{0}.scalePivot".format(self.heel_loc), "{0}.rotatePivot".format(self.heel_loc), absolute=True)
-
-    def parent_objects(self): 
+        cmds.setAttr("{0}.visibility".format(self.ball_loc), 0)
+        self.heel_loc = cmds.spaceLocator(absolute=True, name="heel_LOC_{0}".format(self.SIDE), position=[ankle_coords[0], self.GRND_HGT_OFFSET, ankle_coords[2]-self.HEEL_OFFSET])[0]
+        cmds.move(ankle_coords[0], self.GRND_HGT_OFFSET, ankle_coords[2]-self.HEEL_OFFSET, "{0}.scalePivot".format(self.heel_loc), "{0}.rotatePivot".format(self.heel_loc), absolute=True)
+        cmds.setAttr("{0}.visibility".format(self.heel_loc), 0)
+        self.inner_loc = cmds.spaceLocator(absolute=True, name="innerFoot_LOC_{0}".format(self.SIDE), position=[innerX, self.GRND_HGT_OFFSET, innerZ])[0]
+        cmds.move(innerX, self.GRND_HGT_OFFSET, innerZ, "{0}.scalePivot".format(self.inner_loc), "{0}.rotatePivot".format(self.inner_loc), absolute=True)
+        cmds.setAttr("{0}.visibility".format(self.inner_loc), 0)        
+        self.outer_loc = cmds.spaceLocator(absolute=True, name="outerFoot_LOC_{0}".format(self.SIDE), position=[outerX, self.GRND_HGT_OFFSET, outerZ])[0]
+        cmds.move(outerX, self.GRND_HGT_OFFSET, outerZ, "{0}.scalePivot".format(self.outer_loc), "{0}.rotatePivot".format(self.outer_loc), absolute=True)
+        cmds.setAttr("{0}.visibility".format(self.outer_loc), 0)
+        
+    def parent_objects(self):
+        cmds.parent(self.inner_loc, self.outer_loc)
         cmds.parent(self.heel_loc, self.foot_controller)
-        cmds.parent(self.toe_loc, self.toe_ik, self.heel_loc)
+        cmds.parent(self.outer_loc, self.heel_loc)
+        cmds.parent(self.toe_loc, self.inner_loc)
         cmds.parent(self.leg_ik, self.ball_ik, self.ball_loc)
         cmds.parent(self.ball_loc, self.toe_loc)
+    
+    def create_toe_wiggle(self):
+        ball_coords = cmds.xform( self.foot_ball_bone, query=True, translation=True, worldSpace=True )
 
-       
+        toe_group = cmds.group(self.toe_ik, name="toe_wiggle_GRP_{0}".format(self.SIDE), parent=self.toe_loc)
+        cmds.move(ball_coords[0], ball_coords[1], ball_coords[2],
+                    "{0}.scalePivot".format(toe_group),
+                    "{0}.rotatePivot".format(toe_group),
+                    absolute=True)
+        cmds.connectAttr("{0}.toeWiggle".format(self.foot_controller), "{0}.rotateX".format(toe_group))
+    
+    def add_roll_attributes(self):
+        # Add the attributes needed to the Foot Controller
+        cmds.addAttr(self.foot_controller, longName="bendLimitAngle", defaultValue=45.0, attributeType="float", keyable=True)
+        cmds.addAttr(self.foot_controller, longName="toeStraightAngle", defaultValue=70.0, attributeType="float", keyable=True)
+        cmds.addAttr(self.foot_controller, longName="roll", attributeType="float", keyable=True)
+        cmds.addAttr(self.foot_controller, longName="tilt", attributeType="float", keyable=True)
+        cmds.addAttr(self.foot_controller, longName="lean", attributeType="float", keyable=True)
+        cmds.addAttr(self.foot_controller, longName="toeSpin", attributeType="float", keyable=True)
+        cmds.addAttr(self.foot_controller, longName="toeWiggle", attributeType="float", keyable=True)
+
+    def hookup_nodes(self):
+        # Setup clamp node for the Heel Rotation
+        clamp_node = cmds.createNode('clamp', n="rot_clamp_heel_{0}".format(self.SIDE))
+        cmds.connectAttr("{0}.roll".format(self.foot_controller), "{0}.inputR".format(clamp_node))
+        cmds.setAttr("{0}.minR".format(clamp_node), -90)
+        cmds.connectAttr("{0}.outputR".format(clamp_node), "{0}.rotateX".format(self.heel_loc))
+        
+        # Setup clamp node for the foot Toe rotation
+        set_range_node_toe = cmds.createNode('setRange', n="rot_bendToStraight_percent_toe_{0}".format(self.SIDE))
+        cmds.connectAttr("{0}.roll".format(self.foot_controller), "{0}.valueX".format(set_range_node_toe))
+        cmds.connectAttr("{0}.bendLimitAngle".format(self.foot_controller), "{0}.oldMinX".format(set_range_node_toe))
+        cmds.connectAttr("{0}.toeStraightAngle".format(self.foot_controller), "{0}.oldMaxX".format(set_range_node_toe))
+        cmds.setAttr("{0}.minX".format(set_range_node_toe), 0)
+        cmds.setAttr("{0}.maxX".format(set_range_node_toe), 1)
+        multi_node = cmds.createNode('multiplyDivide', n="multiply_footroll_{0}".format(self.SIDE))
+        cmds.connectAttr("{0}.outValueX".format(set_range_node_toe), "{0}.input1X".format(multi_node))
+        cmds.connectAttr("{0}.roll".format(self.foot_controller), "{0}.input2X".format(multi_node))
+        cmds.connectAttr("{0}.outputX".format(multi_node), "{0}.rotateX".format(self.toe_loc))
+        
+        # Setup clamp node for the foot Ball rotation
+        set_range_node_ball = cmds.createNode('setRange', n="rot_zeroToBend_percent_ball_{0}".format(self.SIDE))
+        cmds.connectAttr("{0}.roll".format(self.foot_controller), "{0}.valueX".format(set_range_node_ball))
+        cmds.connectAttr("{0}.bendLimitAngle".format(self.foot_controller), "{0}.oldMaxX".format(set_range_node_ball))
+        cmds.setAttr("{0}.oldMinX".format(set_range_node_ball), 0)
+        cmds.setAttr("{0}.minX".format(set_range_node_ball), 0)
+        cmds.setAttr("{0}.maxX".format(set_range_node_ball), 1)
+        
+        invert_percentage = cmds.createNode('plusMinusAverage', n="rot_invert_percent_{0}".format(self.SIDE))
+        cmds.setAttr("{0}.input1D[0]".format(invert_percentage), 1)
+        cmds.setAttr("{0}.input1D[1]".format(invert_percentage), 1)
+        cmds.setAttr("{0}.operation".format(invert_percentage), 2)
+        cmds.connectAttr("{0}.outValueX".format(set_range_node_toe), "{0}.input1D[1]".format(invert_percentage))
+        
+        multi_node_percent = cmds.createNode('multiplyDivide', n="multiply_ballPercent_{0}".format(self.SIDE))
+        cmds.connectAttr("{0}.outValueX".format(set_range_node_ball), "{0}.input1X".format(multi_node_percent))
+        cmds.connectAttr("{0}.output1D".format(invert_percentage), "{0}.input2X".format(multi_node_percent))
+        
+        multi_node_roll = cmds.createNode('multiplyDivide', n="multiply_ballRoll_{0}".format(self.SIDE))
+        cmds.connectAttr("{0}.outputX".format(multi_node_percent), "{0}.input1X".format(multi_node_roll))
+        cmds.connectAttr("{0}.roll".format(self.foot_controller), "{0}.input2X".format(multi_node_roll))
+
+        cmds.connectAttr("{0}.outputX".format(multi_node_roll), "{0}.rotateX".format(self.ball_loc))
+        
+        # For the Foot Lean Attribute
+        cmds.connectAttr("{0}.lean".format(self.foot_controller), "{0}.rotateZ".format(self.ball_loc))
+        
+        # For the Foot Toe Spin Attribute
+        cmds.connectAttr("{0}.toeSpin".format(self.foot_controller), "{0}.rotateY".format(self.toe_loc))
+
+    def set_driven_keys(self):
+        cmds.setDrivenKeyframe(self.inner_loc,
+                                attribute="rotateZ",
+                                currentDriver="{0}.tilt".format(self.foot_controller),
+                                driverValue=0.0,
+                                value=0.0)
+        cmds.setDrivenKeyframe(self.outer_loc,
+                                attribute="rotateZ",
+                                currentDriver="{0}.tilt".format(self.foot_controller),
+                                driverValue=0.0,
+                                value=0.0)
+        cmds.setDrivenKeyframe(self.inner_loc,
+                                attribute="rotateZ",
+                                currentDriver="{0}.tilt".format(self.foot_controller),
+                                driverValue=-90.0,
+                                value=90.0)
+        cmds.setDrivenKeyframe(self.outer_loc,
+                                attribute="rotateZ",
+                                currentDriver="{0}.tilt".format(self.foot_controller),
+                                driverValue=90.0,
+                                value=-90.0)
+        
+
+        
     def create_footroll(self):
         message = self.check_for_all_joints()
         if message:
@@ -221,6 +330,10 @@ class FootRoll(object):
         
         self.create_locators()
         self.parent_objects()
+        self.add_roll_attributes()
+        self.hookup_nodes()
+        self.set_driven_keys()
+        self.create_toe_wiggle()
         
         return message
         
