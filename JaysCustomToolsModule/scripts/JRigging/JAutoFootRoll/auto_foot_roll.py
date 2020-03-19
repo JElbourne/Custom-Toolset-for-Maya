@@ -319,21 +319,32 @@ class FootRoll(object):
 
         
     def create_footroll(self):
+        """ This function will create the foot roll by executing all the required functions """
+        
         message = self.check_for_all_joints()
         if message:
             return message 
+        
+        cmds.undoInfo(openChunk=True)
+        ## Make sure to alsways use a Try/except block when using Undo chunks so you can always
+        ## Ensure the Undo chunck was CLOSED!
+        try:
+            self.create_ik_handles()
+        
+            self.create_foot_controller()
+            self.create_poleVector()
             
-        self.create_ik_handles()
-        
-        self.create_foot_controller()
-        self.create_poleVector()
-        
-        self.create_locators()
-        self.parent_objects()
-        self.add_roll_attributes()
-        self.hookup_nodes()
-        self.set_driven_keys()
-        self.create_toe_wiggle()
-        
+            self.create_locators()
+            self.parent_objects()
+            self.add_roll_attributes()
+            self.hookup_nodes()
+            self.set_driven_keys()
+            self.create_toe_wiggle()
+        except:
+            traceback.print_exc()
+            message = "Auto Leg Rig error occured. See script editor for details."
+            om.MGlobal.displayError(message)
+        cmds.undoInfo(closeChunk=True)            
+
         return message
         
